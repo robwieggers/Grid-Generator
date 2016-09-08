@@ -1,0 +1,30 @@
+CPP = /lib/cpp -traditional
+CPPOPTS = -C -P -I${srcdir} ${EQUIVS}
+SED = sed s:\#PREC\#:d:g
+SED =
+LINK_MOD = 
+
+FC = gfortran
+
+ifdef DEBUG
+FCOPTS = -g -fbounds-check
+else
+FCOPTS = -g -O
+endif
+
+DBLFC = ${FC}
+DDBLOPTION = -Ad # ???
+DBLSED = sed -e s:\#PREC\#:d:g
+DBLSED = 
+
+INCMOD = -J
+MOD = mod
+OBJDEST = -o ${OBJDIR}/$*.o
+
+BLD = ar rcv
+
+GRLIBES =
+LDLIBES =
+
+LD = $(FC)
+LDOPTS = -g -Bstatic

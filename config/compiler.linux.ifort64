@@ -1,0 +1,30 @@
+CPP = /lib/cpp -C -traditional
+CPPOPTS = -C -P -I${srcdir} ${EQUIVS}
+SED = sed s:\#PREC\#:d:g
+SED =
+LINK_MOD = 
+
+FC = ifort
+
+ifdef DEBUG
+FCOPTS = -g -pg -fpe0 -O -check all -align all -warn all -debug extended -debug-parameters all
+else
+FCOPTS = -O2
+endif
+
+DBLFC = ${FC}
+DDBLOPTION = -Ad # ???
+DBLSED = sed -e s:\#PREC\#:d:g
+DBLSED = 
+
+INCMOD = -module
+MOD = mod
+OBJDEST = -o ${OBJDIR}/$*.o
+
+BLD = ar rcv
+
+GRLIBES = 
+LDLIBES = 
+
+LD = ${FC}
+# LDOPTS = -Bstatic

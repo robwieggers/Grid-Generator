@@ -1,0 +1,41 @@
+include ${TOPDIR}/config/compiler.${OBJECTCODE}
+ifeq (${INCMOD},-module)
+INCMODS = ${INCMOD} ${OBJDIR}
+else
+INCMODS = ${INCMOD}${OBJDIR}
+endif
+
+${OBJDIR}/%.o : %.f90
+	@- /bin/rm -f ${OBJDIR}/$*.f90 ${OBJDIR}/$*.o ${OBJDIR}/$*.${MOD}
+ifeq ($(strip $(CPP)),)
+	${FC} ${FCOPTS} ${DEFINES} ${EQUIVS} ${INCLUDE} -c $<
+else
+ifeq ($(strip $(SED)),)
+	-${CPP} ${DEFINES} ${EQUIVS} -P ${INCLUDE} $< ${OBJDIR}/$*.f90
+else
+	-${CPP} ${DEFINES} ${EQUIVS} -P ${INCLUDE} $< | ${SED} > ${OBJDIR}/$*.f90
+endif
+	${FC} ${FCOPTS} -c ${INCMODS} ${OBJDEST} ${OBJDIR}/$*.f90
+endif
+	@if [ -f $*.o ] ; then /bin/mv $*.o ${OBJDIR}/ ; fi
+	@if [ -f $*.${MOD} ] ; then /bin/mv $*.${MOD} ${OBJDIR}/ ; fi
+
+${OBJDIR}/%.${MOD} : %.f90        # All classes and modules
+	@- /bin/rm -f ${OBJDIR}/$*.f90 ${OBJDIR}/$*.o ${OBJDIR}/$*.${MOD}
+ifeq ($(strip $(CPP)),)
+	${FC} ${FCOPTS} ${DEFINES} ${EQUIVS} ${INCLUDE} -c $<
+else
+ifeq ($(strip $(SED)),)
+	-${CPP} ${DEFINES} ${EQUIVS} -P ${INCLUDE} $< ${OBJDIR}/$*.f90
+else
+	-${CPP} ${DEFINES} ${EQUIVS} -P ${INCLUDE} $< | ${SED} > ${OBJDIR}/$*.f90
+endif
+	${FC} ${FCOPTS} -c ${INCMODS} ${OBJDEST} ${OBJDIR}/$*.f90
+	@ touch ${OBJDIR}/$*.mod
+endif
+	@if [ -f $*.o ] ; then /bin/mv $*.o ${OBJDIR}/ ; fi
+ifeq ($(strip $(LINK_MOD)),)
+	@if [ -f $*.${MOD} ] ; then /bin/mv $*.${MOD} ${OBJDIR}/ ; fi
+else
+	@[ -f $*.${MOD} ] && [ ! -L $*.${MOD} ] && /bin/mv $*.${MOD} ${OBJDIR}/ && /bin/ln -s ${OBJDIR}/$*.${MOD} .
+endif
