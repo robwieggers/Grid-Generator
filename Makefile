@@ -15,9 +15,9 @@ endif
 #INCLUDE += -I${SRCDIR}/common -I${TOPDIR}/include.local -I${TOPDIR}/include
 
 ifeq ($(shell [ -d ${SRCLOCAL} ] && echo yes || echo no ),yes)
-VPATH =${SRCLOCAL}:${SRCDIR}/main
+VPATH =${SRCLOCAL}:${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common
 else
-VPATH =${SRCDIR}:${SRCDIR}/main
+VPATH =${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common
 endif
 
 ifeq ($(shell [ -e ${BASEDIR}/LISTOBJ ] && echo yes || echo no ),yes)
@@ -74,6 +74,7 @@ realclean : clean
 	rm -f ${OBJDIR}/*.a ${OBJDIR}/*.exe
 
 depend: ${BASEDIR}/LISTOBJ ${OBJS:.o=.f90} ${EXELIST:.o=.f90}
+	@echo 'rcw18'
 	`which makedepend` -p'$${OBJDIR}/' ${DEFINES} -f- ${INCLUDE} $^ | \
 	sed 's,^$${OBJDIR}/[^ ][^ ]*/,\$${OBJDIR}/,' > ${OBJDIR}/dependencies 
 ifneq (${MOD},o)
@@ -81,13 +82,15 @@ ifneq (${MOD},o)
 	sed 's,^$${OBJDIR}/[^ ][^ ]*/,\$${OBJDIR}/,' >> ${OBJDIR}/dependencies 
 endif
 ifeq ($(shell [ -d ${SRCLOCAL} ] && echo yes || echo no ),yes)
-	egrep '^ {2,}USE [A-Z]' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep 'Class$$\|Mod$$' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
-	egrep '^ {2,}USE [A-Z]' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep 'Class$$\|Mod$$' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
+	@echo 'rcw20'
+	egrep -i '^ {2,}use [a-z]' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep 'Class$$\|Mod$$' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
+	egrep -i '^ {2,}use [a-z]' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep 'Class$$\|Mod$$' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 #	egrep -i '^ {2,}use ' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep -v 'IGNORE' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 #	egrep -i '^ {2,}use ' ${SRCLOCAL}/*.f90 ${SRCDIR}/*/*.f90 | grep -v 'IGNORE' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 else
-	egrep '^ {2,}USE [A-Z]' ${SRCDIR}/*/*.f90 | grep 'Class\|Mod' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
-	egrep '^ {2,}USE [A-Z]' ${SRCDIR}/*/*.f90 | grep 'Class\|Mod' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
+	@echo 'rcw21'
+	egrep -i '^ {2,}use [a-z]' ${SRCDIR}/*/*.f90 | grep 'Class\|Mod' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
+	egrep -i '^ {2,}use [a-z]' ${SRCDIR}/*/*.f90 | grep 'Class\|Mod' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 #	egrep -i '^ {2,}use ' ${SRCDIR}/*/*.f90 | grep -v 'IGNORE' | awk '{sub("\.f90",".o",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 #	egrep -i '^ {2,}use ' ${SRCDIR}/*/*.f90 | grep -v 'IGNORE' | awk '{sub("\.f90",".${MOD}",$$1);sub("^.*/","$${OBJDIR}/",$$1); print $$1,"$${OBJDIR}/"$$3".${MOD}"}' >> ${OBJDIR}/dependencies
 endif
@@ -100,6 +103,8 @@ else
 endif
 
 listobj:
+	@echo 'werwer'
+	@echo ${VPATH} 
 	@rm -f ${BASEDIR}/LISTOBJ; touch ${BASEDIR}/LISTOBJ; l="OBJS ="; \
 	for d in `echo "${VPATH}" | tr : \ `; do \
 		l="$$l `(cd $$d > /dev/null; echo *.f90)`"; \
@@ -130,7 +135,7 @@ include ${OBJDIR}/dependencies
 
 echo:
 #	@echo VPATH=${VPATH}
-#	@echo OBJS=${OBJS}
+	@echo OBJS=${OBJS}
 #	@echo SOBJS=${SOBJS}
 #	@echo DOBJS=${DOBJS}
 	@echo MODULES=${MODULES}
