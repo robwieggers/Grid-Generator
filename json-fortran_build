@@ -1,0 +1,56 @@
+#! /bin/tcsh
+###################################################################
+# This script will download and install the json-fortran library. #
+#							          #
+# Created by Rob Wieggers                                         #
+#						         	  #
+###################################################################
+
+if ($#argv == 1) then
+    set FC = $1
+    setenv FC $FC
+else
+    echo 'please specify a compiler'
+    echo 'json-fortran_build {compiler}'
+    exit
+endif
+
+set downloadDir = ${LIBDIR}/downloads
+set extractDir = ${downloadDir}/json-fortran
+set downloadFile = 'json-fortran.tar.gz'
+
+# create required directory structure, if it does not already exist 
+mkdir -p ${extractDir}
+mkdir -p ${LIBDIR}/${OBJECTCODE}
+mkdir -p ${MODDIR}/${OBJECTCODE}
+
+cd ${downloadDir}
+if (! -e ${downloadDir}/${downloadFile}) then
+  if (`curl -s https://api.github.com/repos/jacobwilliams/json-fortran/releases/latest` == '') then
+    echo 'Could not download library. Do you have access to the internet?'
+    exit
+  endif
+  wget `curl -s https://api.github.com/repos/jacobwilliams/json-fortran/releases/latest | grep tarball_url |  cut -d\" -f4` -O ${downloadDir}/${downloadFile}
+endif
+
+# install fresh copy of the library
+rm -r ${extractDir}/*
+tar -xvf ${downloadDir}/${downloadFile} -C ${extractDir}
+
+# move the files to where we want
+cd ${extractDir}
+
+##cd `ls` ; mv * ../. ; mv .[a-zA-Z0-9]* ../. ; cd ..
+
+# first time cmake runs into errors, and creates CMakeCache.txt.
+# after modifying this file, the errors will be gone and cmake is executed again
+cmake ./
+sed -i 's/ENABLE_IN_SOURCE_BUILDS:BOOL=OFF/ENABLE_IN_SOURCE_BUILDS:BOOL=ON/g' CMakeCache.txt
+cmake ./
+make
+
+# copy *.a and *.mod to correct location
+cp ./lib/*.a ${LIBDIR}/${OBJECTCODE}
+cp ./*.mod ${MODDIR}/${OBJECTCODE}
+#cp ${extractDir}/lib/*.a ${LIBDIR}/${OBJECTCODE}
+#cp ${extractDir}/*.mod ${MODDIR}/${OBJECTCODE}
