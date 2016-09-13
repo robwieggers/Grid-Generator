@@ -43,11 +43,20 @@ contains
     use json_module !IGNORE
     class(Configuration) :: this
     type(json_file) :: json
-
+    logical :: found
+    character(charLen) :: filename
+    character(kind=json_CK,len=:), allocatable :: cval
+    
     call json%initialize()
     call json%load_file(filename = this%filename)
-    call json%print_file()
-    print *, 'done reading ' // this%filename
+!    call json%print_file()
+
+    call json%get('plasma.filename', cval, found)
+    if (.not.found) then
+       call exception('plasmaGridFile not found in json input', &
+         __FILE__, __LINE__)
+    end if
+    this%plasmaGridConfiguration%filename = trim(adjustl(cval))
     
   end subroutine readJson
   

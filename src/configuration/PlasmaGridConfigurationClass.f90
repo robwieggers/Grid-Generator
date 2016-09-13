@@ -1,9 +1,10 @@
 module PlasmaGridConfigurationClass
+  use TypesMod
   implicit none
   private
-  public PlasmaGridConfiguration
   
-  type PlasmaGridConfiguration
+  type, public :: PlasmaGridConfiguration
+     character(charLen) :: filename
   end type PlasmaGridConfiguration
 
 contains
