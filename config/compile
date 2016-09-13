@@ -1,8 +1,10 @@
 include ${TOPDIR}/config/compiler.${OBJECTCODE}
 ifeq (${INCMOD},-module)
 INCMODS = ${INCMOD} ${OBJDIR}
+INCMODS += ${INCMOD} ${MODDIR}/${OBJECTCODE}
 else
 INCMODS = ${INCMOD}${OBJDIR}
+INCMODS += ${INCMOD}${MODDIR}/${OBJECTCODE}
 endif
 
 ${OBJDIR}/%.o : %.f90

@@ -29,16 +29,28 @@ contains
     newConfiguration%filename = ''
     
   end function newConfiguration
+
   
   subroutine loadConfiguration(this)   
     implicit none
     class(Configuration), intent(in) :: this
 
-    call exception('to be implemented', &
-         __FILE__, __LINE__)
-    
+    call readJson(this)
+        
   end subroutine LoadConfiguration
 
+  subroutine readJson(this)
+    use json_module !IGNORE
+    class(Configuration) :: this
+    type(json_file) :: json
+
+    call json%initialize()
+    call json%load_file(filename = this%filename)
+    call json%print_file()
+    print *, 'done reading ' // this%filename
+    
+  end subroutine readJson
+  
   function setInputFilename(this, filename) result (conf)
     use ErrorHandlingMod
     implicit none
@@ -66,53 +78,3 @@ contains
   end function setInputFilename
   
 end module ConfigurationClass
-!!$module ConfigurationClass
-!!$  use TypesMod
-!!$  use PlasmaGridConfigurationClass
-!!$  use NeutralGridConfigurationClass
-!!$  
-!!$  implicit none
-!!$  private
-!!$  
-!!$  type, public :: Configuration
-!!$     character(charLen) :: filename
-!!$     type(PlasmaGridConfiguration) :: plasmaGridConfiguration
-!!$     type(NeutralGridConfiguration) :: neutralGridConfiguration
-!!$   contains
-!!$     procedure :: load => loadConfiguration
-!!$     procedure :: usingFile => setInputFileName
-!!$  end type Configuration
-!!$
-!!$contains
-!!$  
-!!$  subroutine loadConfiguration(this)   
-!!$    implicit none
-!!$    class(Configuration), intent(in) :: this
-!!$    print *, 'inputfile:' // trim(this%filename)
-!!$    print *, 'to be implemented'
-!!$    
-!!$  end subroutine LoadConfiguration
-!!$
-!!$  subroutine setInputFilename(this, filenameIn)
-!!$    use ErrorHandlingMod
-!!$    implicit none
-!!$    class(Configuration) :: this
-!!$    character*(*), intent(in) :: filenameIn
-!!$    logical :: ex
-!!$    
-!!$    if (adjustl(filenameIn) == "") then
-!!$       call exception("inputfile is empty")
-!!$    end if
-!!$    if (len(trim(adjustl(filenameIn))) > charLen) then
-!!$       call exception("inputfile is too long")
-!!$    end if
-!!$    inquire(file = adjustl(filenameIn), exist = ex)
-!!$    if (.not.ex) then
-!!$       call exception("inputfile " // adjustl(filenameIn) // " does not exist")
-!!$    end if
-!!$    
-!!$    this%filename = adjustl(filenameIn)
-!!$
-!!$  end subroutine setInputFilename
-!!$  
-!!$end module ConfigurationClass

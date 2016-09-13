@@ -24,7 +24,7 @@ OBJDEST = -o ${OBJDIR}/$*.o
 BLD = ar rcv
 
 GRLIBES = 
-LDLIBES = 
+LDLIBES = -L${LIBDIR}/${OBJECTCODE} -ljsonfortran
 
 
 LD = $(FC)

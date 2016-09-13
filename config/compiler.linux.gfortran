@@ -17,14 +17,14 @@ DDBLOPTION = -Ad # ???
 DBLSED = sed -e s:\#PREC\#:d:g
 DBLSED = 
 
-INCMOD = -J
+INCMOD = -I
 MOD = mod
 OBJDEST = -o ${OBJDIR}/$*.o
 
 BLD = ar rcv
 
 GRLIBES =
-LDLIBES =
+LDLIBES = -L${LIBDIR}/${OBJECTCODE} -ljsonfortran
 
 LD = $(FC)
 LDOPTS = -g -Bstatic
