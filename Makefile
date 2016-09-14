@@ -15,9 +15,9 @@ endif
 #INCLUDE += -I${SRCDIR}/common -I${TOPDIR}/include.local -I${TOPDIR}/include
 
 ifeq ($(shell [ -d ${SRCLOCAL} ] && echo yes || echo no ),yes)
-VPATH =${SRCLOCAL}:${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common
+VPATH =${SRCLOCAL}:${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular
 else
-VPATH =${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common
+VPATH =${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular
 endif
 
 ifeq ($(shell [ -e ${BASEDIR}/LISTOBJ ] && echo yes || echo no ),yes)
@@ -121,7 +121,7 @@ ifeq ($(shell [ -d ${OBJDIR} ] && echo yes || echo no ),no)
 	echo ${OBJDIR}
 endif
 ifeq ($(shell [ -d ${SRCDIR}/${OBJECTCODE} ] && echo yes || echo no ),no)
-	ln -sf ${OBJDIR} ${SRCDIR}/${OBJECTCODE}
+#	ln -sf ${OBJDIR} ${SRCDIR}/${OBJECTCODE}
 endif
 	touch ${OBJDIR}/dependencies
 	${MAKE} depend

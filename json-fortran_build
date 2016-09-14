@@ -2,7 +2,7 @@
 ###################################################################
 # This script will download and install the json-fortran library. #
 #							          #
-# Created by Rob Wieggers                                         #
+# Script created by Rob Wieggers                                  #
 #						         	  #
 ###################################################################
 
@@ -39,8 +39,7 @@ tar -xvf ${downloadDir}/${downloadFile} -C ${extractDir}
 
 # move the files to where we want
 cd ${extractDir}
-
-##cd `ls` ; mv * ../. ; mv .[a-zA-Z0-9]* ../. ; cd ..
+cd `ls` ; mv * ../. ; mv .[a-zA-Z0-9]* ../. ; cd ..
 
 # first time cmake runs into errors, and creates CMakeCache.txt.
 # after modifying this file, the errors will be gone and cmake is executed again

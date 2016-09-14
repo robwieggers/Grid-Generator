@@ -4,6 +4,7 @@ module NeutralGridConfigurationClass
   public NeutralGridConfiguration
   
   type NeutralGridConfiguration
+     logical :: createGrid
   end type NeutralGridConfiguration
 
 contains

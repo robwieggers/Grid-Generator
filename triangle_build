@@ -1,0 +1,37 @@
+#! /bin/tcsh
+###################################################
+# This script will download and install triangle. #
+#					          #
+# Script created by Rob Wieggers		  #
+#					       	  #
+###################################################
+
+set downloadDir = ${BINDIR}/downloads
+set extractDir = ${downloadDir}
+set downloadFile = 'triangle.zip'
+
+if (-e ${BINDIR}/triangle && -e ${BINDIR}/showme) then
+  echo 'triangle and showme already installed'
+  exit
+endif
+
+# create required directory structure, if it does not already exist 
+mkdir -p ${extractDir}
+
+cd ${downloadDir}
+if (! -e ${downloadDir}/${downloadFile}) then
+  if (`curl -s http://www.netlib.org/voronoi/triangle.zip` == '') then
+    echo 'Could not download triangle. Do you have access to the internet?'
+    exit
+  endif
+  wget http://www.netlib.org/voronoi/triangle.zip -O ${downloadDir}/${downloadFile}
+endif
+
+if (! `which unzip | grep -i 'command not found'` == '') then
+  echo 'unzip not found. Please install unzip (ubuntu: sudo apt-get install unzip)'
+  exit
+endif
+unzip ${downloadDir}/${downloadFile} -d ${downloadDir}
+cd ${downloadDir}
+make
+cp triangle showme ${BINDIR}/.
