@@ -70,15 +70,16 @@ contains
     call json%load_file(filename = this%filename)
     call json%get(p)
     call core%initialize()
+    ! obtain number of cells, so we can allocate the array
     call core%info(p, json_cdk_'features', found, var_type, n_children)
     if (.not.found) then
        print *, "'features' not found, not a valid quadrangular grid"
     end if
-    print *, 'before'
+
     allocate(cells(n_children))
-    print *, 'nchildren', n_children
     
-    DO i = 1, n_children
+    ! loop over all the cells, and extract the data
+    do i = 1, n_children
        write(index, *) i
        index = adjustl(index)
        call json%get('features('//trim(index)//').properties.x', x)
@@ -97,8 +98,7 @@ contains
        call json%get('features('//trim(index)//').geometry.coordinates(4)', coord)
        cells(i)%cornersX(3) = coord(1)
        cells(i)%cornersY(3) = coord(2)
-    end DO
-    print *, 'after'    
+    end do
     
   end function importFromJson
 
