@@ -9,11 +9,11 @@ module ConfigurationClass
   
   type, public :: Configuration
      character(charLen) :: filename
-     type(PlasmaGridConfiguration) :: plasmaGridConfiguration
-     type(NeutralGridConfiguration) :: neutralGridConfiguration
+     type(PlasmaGridConfiguration) :: plasmaGridConf
+     type(NeutralGridConfiguration) :: neutralGridConf
    contains
      procedure :: load => loadConfiguration
-     procedure :: usingFile => setInputFileName
+     procedure :: useFile => setFileName
   end type Configuration
 
   interface Configuration
@@ -56,15 +56,14 @@ contains
        call exception('plasmaGridFile not found in json input', &
          __FILE__, __LINE__)
     end if
-    this%plasmaGridConfiguration%filename = trim(adjustl(cval))
+    this%plasmaGridConf%filename = trim(adjustl(cval))
     
   end subroutine readJson
   
-  function setInputFilename(this, filename) result (conf)
+  subroutine setFilename(this, filename)
     use ErrorHandlingMod
     implicit none
     class(Configuration) :: this
-    type(Configuration) :: conf
     character*(*), intent(in) :: filename
     logical :: ex
 
@@ -81,9 +80,8 @@ contains
        call exception("inputfile " // trim(adjustl(filename)) // " does not exist", &
          __FILE__, __LINE__)
     end if
-    conf = this
-    conf%filename = trim(adjustl(filename))
+    this%filename = trim(adjustl(filename))
     
-  end function setInputFilename
+  end subroutine setFilename
   
 end module ConfigurationClass
