@@ -43,50 +43,192 @@ contains
 
   
   subroutine readJson(this)
+    use, intrinsic :: iso_fortran_env
     use json_module !IGNORE
     class(Configuration) :: this
     type(json_file) :: json
-    logical :: found, lval
-    character(charLen) :: filename
-    character(kind=json_CK,len=:), allocatable :: cval
+    integer :: i, j, nrExternalRegions, nrNodes
+    character(charLen) :: iChar, jChar
     
     call json%initialize()
     call json%load_file(filename = this%filename)
-    !call json%print_file()
+    !    call json%print_file()
 
     ! import general configuration
-    call json%get('geometry', cval, found)
-    if (.not.found) then
-       call exception('geometry not found in json input', &
-         __FILE__, __LINE__)
-    end if
+    this%geometry = jsonExtractString(json, 'geometry')
     if (.not.&
-         (cval == 'tokamak') .or. &
-         (cval == 'linear device')) then
-       
-       call exception('unknown geometry in json input: ' // trim(cval), &
+         (this%geometry == 'tokamak') .or. &
+         (this%geometry == 'linear device')) then
+       call exception('unknown geometry in json input: ' // trim(this%geometry), &
             __FILE__, __LINE__)
     end if
-    this%geometry = cval
        
     ! import plasma configuration
-    call json%get('plasma.filename', cval, found)
-    if (.not.found) then
-       call exception('plasmaGridFile not found in json input', &
-         __FILE__, __LINE__)
-    end if
-    this%plasmaGridConf%filename = trim(adjustl(cval))
+    this%plasmaGridConf%filename = jsonExtractString(json, 'plasma.filename')
 
     ! import neutral configuration
-    call json%get('neutrals.createGrid', lval, found)
+    this%neutralGridConf%createGrid = jsonExtractLogical(json, 'neutrals.createGrid')
+
+    if (this%neutralGridConf%createGrid) then
+       if (jsonContainsName(json, 'neutrals.externalRegions')) then
+
+          call json%info('neutrals.externalRegions', n_children = nrExternalRegions)
+          allocate(this%neutralGridConf%externalAreas(nrExternalRegions))
+
+          do i = 1, nrExternalRegions
+             write(iChar, *) i
+             iChar = adjustl(iChar)
+
+             this%neutralGridConf%externalAreas(i)%areaLimit = &
+                  jsonExtractReal(json, 'neutrals.externalRegions('//trim(iChar)//').areaLimit')
+             this%neutralGridConf%externalAreas(i)%angleLimit = &
+                  jsonExtractReal(json, 'neutrals.externalRegions('//trim(iChar)//').angleLimit')
+
+             this%neutralGridConf%externalAreas(i)%quadrangularNodeHead = &
+                  jsonExtractIntegerArray(json, &
+                  'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularNodeHead')
+             this%neutralGridConf%externalAreas(i)%quadrangularNodeTail = &
+                  jsonExtractIntegerArray(json, &
+                  'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularNodeTail')
+
+             call json%info('neutrals.externalRegions('//trim(iChar)//').nodes', n_children = nrNodes)
+             allocate(this%neutralGridConf%externalAreas(i)%nodes(nrNodes, 2))
+             do j = 1, nrNodes
+                write(jChar, *) j
+                jChar = adjustl(jChar)
+
+                this%neutralGridConf%externalAreas(i)%nodes(j, :) = &
+                     jsonExtractRealArray(json, &
+                  'neutrals.externalRegions('//trim(iChar)//').nodes('//trim(jChar)//')')
+             end do
+          end do
+       end if
+    end if
+  end subroutine readJson
+
+  
+  subroutine jsonShouldContainName(json, name)
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    character(kind=json_CK,len=:),allocatable :: foo
+    logical :: found
+    
+    call json%info(name,found)
     if (.not.found) then
-       this%neutralGridConf%createGrid = .false.
-       call warning('neutrals.createGrid not specified (correctly)', &
+       call exception(name // ' not specified', &
             __FILE__, __LINE__)
     end if
-    this%neutralGridConf%createGrid = lval
+  end subroutine jsonShouldContainName
+
+  
+  function jsonContainsName(json, name) result(found)
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    logical :: found
     
-  end subroutine readJson
+    call json%info(name,found)
+  end function jsonContainsName
+
+  
+  function jsonExtractString(json, name) result(value)
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    character(kind=json_CK,len=:), allocatable :: value
+    logical :: found
+
+    call jsonShouldContainName(json, name)  
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if
+  end function jsonExtractString
+
+
+    function jsonExtractInteger(json, name) result(value)
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    integer :: value
+    logical :: found
+
+    call jsonShouldContainName(json, name)  
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if    
+  end function jsonExtractInteger
+
+
+  function jsonExtractIntegerArray(json, name) result(value)
+    use, intrinsic :: iso_fortran_env
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    integer, dimension(:), allocatable :: value
+    logical :: found
+
+    call jsonShouldContainName(json, name)
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if
+  end function jsonExtractIntegerArray
+  
+
+  function jsonExtractReal(json, name) result(value)
+    use, intrinsic :: iso_fortran_env
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    real(real64) :: value
+    logical :: found
+
+    call jsonShouldContainName(json, name)
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if
+  end function jsonExtractReal
+
+
+  function jsonExtractRealArray(json, name) result(value)
+    use, intrinsic :: iso_fortran_env
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    real(real64), dimension(:), allocatable :: value
+    logical :: found
+
+    call jsonShouldContainName(json, name)
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if
+  end function jsonExtractRealArray
+
+
+  function jsonExtractLogical(json, name) result(value)
+    use json_module !IGNORE
+    type(json_file) :: json
+    character*(*), intent(in) :: name
+    logical :: found, value
+
+    call jsonShouldContainName(json, name)  
+    call json%get(name, value, found)
+    if (.not.found) then
+       call exception(name // ' not specified in correct type', &
+            __FILE__, __LINE__)
+    end if
+  end function jsonExtractLogical
+  
   
   subroutine setFilename(this, filename)
     use ErrorHandlingMod
