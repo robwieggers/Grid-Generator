@@ -2,7 +2,7 @@
 #  based on the SOLPS makefiles
 
 SRCDIR = ${TOPDIR}/src
-DEFINES = 
+DEFINES = -D__FILENAME__='"$(subst $(SRCDIR)/,,$(abspath $<))"'
 SRCLOCAL = ${TOPDIR}/src/local
 BASEDIR = ${TOPDIR}/base
 OBJDIR = ${BASEDIR}/${OBJECTCODE}

@@ -34,16 +34,16 @@ contains
 
     if (trim(filename) == "") then
        call exception("quadrangular grid filename is empty string", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     if (len(trim(adjustl(filename))) > charLen) then
        call exception("quadrangular grid filename is too long", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     inquire(file = trim(adjustl(filename)), exist = ex)
     if (.not.ex) then
        call exception("file " // trim(adjustl(filename)) // " does not exist", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     this%filename = trim(adjustl(filename))
     

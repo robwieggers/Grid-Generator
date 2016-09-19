@@ -1,17 +1,21 @@
 program gridGenerator
+  use TypesMod
   use ConfigurationClass
-  use TriangularGridClass
+  use InternalTriangularGridExporterClass
+  use ExternalTriangularGridExporterClass
   use TriangularGridExporterClass
   use QuadrangularGridClass
   use QuadrangularGridImporterClass
 
   implicit none
 
+  integer :: i
+  character(charLen) :: iChar
   type(Configuration) :: conf
   type(QuadrangularGrid) :: plasmaGrid
   type(QuadrangularGridImporter) :: plasmaGridImporter
-  type(TriangularGrid) :: internalGrid
-  type(TriangularGridExporter) :: internalGridExporter
+  type(InternalTriangularGridExporter) :: internalGridExporter
+  type(ExternalTriangularGridExporter), allocatable, dimension(:) :: externalGridExporters
   
   conf = Configuration()
   call conf%useFile('input.json')
@@ -25,15 +29,31 @@ program gridGenerator
   call plasmaGrid%import()
 
   if (conf%neutralGridConf%createGrid) then
-     internalGridExporter = TriangularGridExporter()
+     internalGridExporter = InternalTriangularGridExporter()
      call internalGridExporter%useFile('internal.poly')
-     call internalGridExporter%useUnitIO(10)
+     call internalGridExporter%useIOUnit(10)
      
-     internalGrid = TriangularGrid()
-     call internalGrid%useExporter(internalGridExporter)
-     call internalGrid%useQuadrangularGrid(plasmaGrid)
-     call internalGrid%useGeometry(conf%geometry)
-     call internalGrid%create()
+!     internalGrid = TriangularGrid()
+!     call internalGrid%useExporter(internalGridExporter)
+     call internalGridExporter%useQuadrangularGrid(plasmaGrid)
+!     call internalGridExporter%usegularGrid()
+     
+     if (conf%geometry == 'tokamak') then
+        call internalGridExporter%useHoleAtCentroid(.true.)
+     end if
+     call internalGridExporter%export()
+
+     allocate(externalGridExporters(size(conf%neutralGridConf%externalAreas)))
+     do i = 1, size(conf%neutralGridConf%externalAreas)
+        write(iChar, *) i
+        iChar = adjustl(iChar)      
+        externalGridExporters(i) = ExternalTriangularGridExporter()
+        call externalGridExporters(i)%useFile('external'// trim(iChar) //'.poly')
+        call externalGridExporters(i)%useIOUnit(10+i)
+        call externalGridExporters(i)%useExternalArea(conf%neutralGridConf%externalAreas(i))
+     end do
+     
+     
   end if
   
 end program gridGenerator

@@ -60,7 +60,7 @@ contains
          (this%geometry == 'tokamak') .or. &
          (this%geometry == 'linear device')) then
        call exception('unknown geometry in json input: ' // trim(this%geometry), &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
        
     ! import plasma configuration
@@ -117,7 +117,7 @@ contains
     call json%info(name,found)
     if (.not.found) then
        call exception(name // ' not specified', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end subroutine jsonShouldContainName
 
@@ -143,7 +143,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end function jsonExtractString
 
@@ -159,7 +159,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if    
   end function jsonExtractInteger
 
@@ -176,7 +176,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end function jsonExtractIntegerArray
   
@@ -193,7 +193,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end function jsonExtractReal
 
@@ -210,7 +210,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end function jsonExtractRealArray
 
@@ -225,7 +225,7 @@ contains
     call json%get(name, value, found)
     if (.not.found) then
        call exception(name // ' not specified in correct type', &
-            __FILE__, __LINE__)
+            __FILENAME__, __LINE__)
     end if
   end function jsonExtractLogical
   
@@ -239,16 +239,16 @@ contains
 
     if (trim(filename) == "") then
        call exception("inputfile is empty string", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     if (len(trim(adjustl(filename))) > charLen) then
        call exception("inputfile is too long", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     inquire(file = trim(adjustl(filename)), exist = ex)
     if (.not.ex) then
        call exception("inputfile " // trim(adjustl(filename)) // " does not exist", &
-         __FILE__, __LINE__)
+         __FILENAME__, __LINE__)
     end if
     this%filename = trim(adjustl(filename))
     
