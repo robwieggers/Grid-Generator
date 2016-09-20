@@ -34,7 +34,7 @@ contains
     use NeutralGridConfigurationClass
     implicit none
     class(ExternalTriangularGridExporter) :: this
-    type (ExternalArea) :: extArea
+    type (ExternalArea), intent(in) :: extArea
 
     this%externalArea = extArea
 
@@ -44,7 +44,7 @@ contains
     use QuadrangularGridClass
     implicit none
     class(ExternalTriangularGridExporter) :: this
-    type(QuadrangularGrid) :: quadGrid
+    type(QuadrangularGrid), intent(in) :: quadGrid
 
     this%quadrangularGrid = quadGrid
 
@@ -54,7 +54,7 @@ contains
     use TypesMod
     use ErrorHandlingMod
     implicit none
-    class(ExternalTriangularGridExporter) :: this
+    class(ExternalTriangularGridExporter), intent(in) :: this
     integer :: iounit, additionalNodes, step, cntr, i
     integer, dimension(2) :: head, tail
     character (charLen) :: angleLimitChar, areaLimitChar, iChar
@@ -90,7 +90,7 @@ contains
     write (iounit, *) '# Set the nodes of this external grid'
 
     write (iounit, *) size(this%externalArea%nodes, 1) + additionalNodes, 2, 0, 0
-    cntr = 1
+    cntr = 0
 
     ! write nodes external region
     do i = 1, size(this%externalArea%nodes, 1)
@@ -128,13 +128,13 @@ contains
     ! write sides of external grid
     ! number of sides equal number of nodes (for closed polygon)
     write (iounit, *) size(this%externalArea%nodes, 1) + additionalNodes, 1
-    cntr = 1
+    cntr = 0
     do i = 1, size(this%externalArea%nodes, 1) + additionalNodes - 1
-       write (iounit, *) cntr, i, i + 1, cntr + 1000
+       write (iounit, *) cntr, i - 1, i, cntr + 1000
        cntr = cntr + 1
     end do
     ! close polygon (last node to first node)
-    write (iounit, *) cntr, size(this%externalArea%nodes, 1) + additionalNodes, 1, cntr + 1000
+    write (iounit, *) cntr, size(this%externalArea%nodes, 1) + additionalNodes - 1, 0, cntr + 1000
 
     ! no holes
     write (iounit, *) ''
@@ -142,11 +142,8 @@ contains
 
     close(iounit)
 
-    write (areaLimitChar, *) this%externalArea%areaLimit
-    write (angleLimitChar, *) this%externalArea%angleLimit
-    call system('${TOPDIR}/bin/triangle -zepn -a' // &
-         trim(adjustl(areaLimitChar)) // &
-         ' -q' // trim(adjustl(angleLimitChar)) // ' ' // this%filename)
+    call system('${TOPDIR}/bin/triangle -zepn -a' // this%externalArea%areaLimit // &
+         ' -q' // this%externalArea%angleLimit // ' ' // this%filename)
  
   end subroutine exportExternalTriangularGrid
 

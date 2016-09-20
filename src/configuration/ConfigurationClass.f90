@@ -82,9 +82,9 @@ contains
              iChar = adjustl(iChar)
 
              this%neutralGridConf%externalAreas(i)%areaLimit = &
-                  jsonExtractReal(json, 'neutrals.externalRegions('//trim(iChar)//').areaLimit')
+                  jsonExtractString(json, 'neutrals.externalRegions('//trim(iChar)//').areaLimit')
              this%neutralGridConf%externalAreas(i)%angleLimit = &
-                  jsonExtractReal(json, 'neutrals.externalRegions('//trim(iChar)//').angleLimit')
+                  jsonExtractString(json, 'neutrals.externalRegions('//trim(iChar)//').angleLimit')
 
              this%neutralGridConf%externalAreas(i)%quadrangularNodeHead = &
                   jsonExtractIntegerArray(json, &

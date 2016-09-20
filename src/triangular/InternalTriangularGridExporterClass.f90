@@ -45,7 +45,7 @@ contains
   subroutine setQuadrangularGrid(this, grid)
     implicit none
     class(InternalTriangularGridExporter) :: this
-    type(QuadrangularGrid) :: grid
+    type(QuadrangularGrid), intent(in) :: grid
     
     this%quadrangularGrid = grid
     
@@ -55,7 +55,7 @@ contains
   subroutine exportInternalTriangularGrid(this)
     use ErrorHandlingMod
     implicit none
-    class(InternalTriangularGridExporter) :: this
+    class(InternalTriangularGridExporter), intent(in) :: this
     integer :: ix, iy, cntr, nx, ny, iounit
 
     iounit = this%ioUnit

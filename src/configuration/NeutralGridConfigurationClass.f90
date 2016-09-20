@@ -6,8 +6,8 @@ module NeutralGridConfigurationClass
   public NeutralGridConfiguration
   
   type, public :: ExternalArea
-     real(real64) :: areaLimit
-     real(real64) :: angleLimit
+     character(charLen) :: areaLimit
+     character(charLen) :: angleLimit
      real(real64), dimension(:, :), allocatable :: nodes
      integer, dimension(2) :: quadrangularNodeHead
      integer, dimension(2) :: quadrangularNodeTail
