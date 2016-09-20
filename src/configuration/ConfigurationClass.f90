@@ -90,7 +90,21 @@ contains
              this%neutralGridConf%externalAreas(i)%quadrangularNodeTail = &
                   jsonExtractIntegerArray(json, &
                   'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularNodeTail')
-
+             if (this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(1) /= &
+                  this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(1) .and. &
+                 this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(2) /= &
+                 this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(2)) then
+                call exception('first and last node should be on same boundary of the quadrangular', &
+                     __FILENAME__, __LINE__)
+             end if
+             if (this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(1) == &
+                  this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(1) .and. &
+                 this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(2) == &
+                 this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(2)) then
+                call exception('first and last node should be different nodes on a single boundary of the quadrangular', &
+                     __FILENAME__, __LINE__)
+             end if
+             
              call json%info('neutrals.externalRegions('//trim(iChar)//').nodes', n_children = nrNodes)
              allocate(this%neutralGridConf%externalAreas(i)%nodes(nrNodes, 2))
              do j = 1, nrNodes
@@ -99,7 +113,7 @@ contains
 
                 this%neutralGridConf%externalAreas(i)%nodes(j, :) = &
                      jsonExtractRealArray(json, &
-                  'neutrals.externalRegions('//trim(iChar)//').nodes('//trim(jChar)//')')
+                     'neutrals.externalRegions('//trim(iChar)//').nodes('//trim(jChar)//')')
              end do
           end do
        end if

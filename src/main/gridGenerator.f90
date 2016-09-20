@@ -23,20 +23,16 @@ program gridGenerator
 
   plasmaGridImporter = QuadrangularGridImporter()
   call plasmaGridImporter%useFile(conf%plasmaGridConf%filename)
-
+  
   plasmaGrid = QuadrangularGrid()
   call plasmaGrid%useImporter(plasmaGridImporter)
   call plasmaGrid%import()
-
   if (conf%neutralGridConf%createGrid) then
      internalGridExporter = InternalTriangularGridExporter()
      call internalGridExporter%useFile('internal.poly')
      call internalGridExporter%useIOUnit(10)
      
-!     internalGrid = TriangularGrid()
-!     call internalGrid%useExporter(internalGridExporter)
      call internalGridExporter%useQuadrangularGrid(plasmaGrid)
-!     call internalGridExporter%usegularGrid()
      
      if (conf%geometry == 'tokamak') then
         call internalGridExporter%useHoleAtCentroid(.true.)
@@ -46,11 +42,14 @@ program gridGenerator
      allocate(externalGridExporters(size(conf%neutralGridConf%externalAreas)))
      do i = 1, size(conf%neutralGridConf%externalAreas)
         write(iChar, *) i
-        iChar = adjustl(iChar)      
+        iChar = adjustl(iChar)
         externalGridExporters(i) = ExternalTriangularGridExporter()
+        
+        call externalGridExporters(i)%useQuadrangularGrid(plasmaGrid)
         call externalGridExporters(i)%useFile('external'// trim(iChar) //'.poly')
         call externalGridExporters(i)%useIOUnit(10+i)
         call externalGridExporters(i)%useExternalArea(conf%neutralGridConf%externalAreas(i))
+        call externalGridExporters(i)%export()
      end do
      
      

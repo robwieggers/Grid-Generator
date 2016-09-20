@@ -107,10 +107,10 @@ contains
     end do
 
     write (iounit, *) ''
+    write (iounit, *) '#set the hole (for tokamak geometry)'
+    write (iounit, *) '#format: counter, coordinate within the hole'
     if (this%holeAtCentroid) then
        ! add hole for tokamak 
-       write (iounit, *) '#set the hole (for tokamak geometry)'
-       write (iounit, *) '#format: counter, coordinate within the hole'
        write (iounit, *) 1
        write (iounit, *) 1, &
             0.5 * ( &

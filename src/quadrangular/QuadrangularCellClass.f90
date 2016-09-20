@@ -6,8 +6,8 @@ module QuadrangularCellClass
   type, public :: QuadrangularCell
      integer :: x
      integer :: y
-     real(kind=real64) :: cornersX(0:3)
-     real(kind=real64) :: cornersY(0:3)
+     real(kind=real64) :: cornersX(4)
+     real(kind=real64) :: cornersY(4)
   end type QuadrangularCell
 
   

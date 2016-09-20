@@ -87,17 +87,17 @@ contains
        cells(i)%x = x
        cells(i)%y = y      
        call json%get('features('//trim(index)//').geometry.coordinates(1)', coord)
-       cells(i)%cornersX(0) = coord(1)
-       cells(i)%cornersY(0) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(2)', coord)
        cells(i)%cornersX(1) = coord(1)
        cells(i)%cornersY(1) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(3)', coord)
+       call json%get('features('//trim(index)//').geometry.coordinates(2)', coord)
        cells(i)%cornersX(2) = coord(1)
        cells(i)%cornersY(2) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(4)', coord)
+       call json%get('features('//trim(index)//').geometry.coordinates(3)', coord)
        cells(i)%cornersX(3) = coord(1)
        cells(i)%cornersY(3) = coord(2)
+       call json%get('features('//trim(index)//').geometry.coordinates(4)', coord)
+       cells(i)%cornersX(4) = coord(1)
+       cells(i)%cornersY(4) = coord(2)
     end do
     
   end function importFromJson
