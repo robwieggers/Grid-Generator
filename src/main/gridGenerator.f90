@@ -4,6 +4,7 @@ program gridGenerator
   use InternalTriangularGridExporterClass
   use ExternalTriangularGridExporterClass
   use TriangularGridExporterClass
+  use TriangularGridMergerClass
   use QuadrangularGridClass
   use QuadrangularGridImporterClass
 
@@ -16,6 +17,7 @@ program gridGenerator
   type(QuadrangularGridImporter) :: plasmaGridImporter
   type(InternalTriangularGridExporter) :: internalGridExporter
   type(ExternalTriangularGridExporter), allocatable, dimension(:) :: externalGridExporters
+  type(TriangularGridMerger) :: gridMerger
   
   conf = Configuration()
   call conf%useFile('input.json')
@@ -50,8 +52,14 @@ program gridGenerator
         call externalGridExporters(i)%useIOUnit(10+i)
         call externalGridExporters(i)%useExternalArea(conf%neutralGridConf%externalAreas(i))
         call externalGridExporters(i)%export()
-     end do
-     
+     end do    
+
+     gridMerger = TriangularGridMerger()
+     call gridMerger%useInternalGridExporter(internalGridExporter)
+     call gridMerger%useExternalGridExporters(externalGridExporters)
+     call gridMerger%useIOUnits(8, 9)
+     call gridMerger%useFileWithoutExtension(conf%neutralGridConf%filenameWithoutExtension)
+     call gridMerger%merge()
      
   end if
   

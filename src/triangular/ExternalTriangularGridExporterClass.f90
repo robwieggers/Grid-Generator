@@ -61,6 +61,10 @@ contains
     
     head = this%externalArea%quadrangularNodeHead
     tail = this%externalArea%quadrangularNodeTail
+    if (this%ioUnit < 0) then
+       call exception('ioUnit has not been set', &
+            __FILENAME__, __LINE__)
+    end if
     iounit = this%ioUnit
     do i = 1, 2
        write (iChar, *) i

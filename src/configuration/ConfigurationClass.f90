@@ -70,6 +70,8 @@ contains
     this%neutralGridConf%createGrid = jsonExtractLogical(json, 'neutrals.createGrid')
 
     if (this%neutralGridConf%createGrid) then
+       this%neutralGridConf%filenameWithoutExtension = &
+            jsonExtractString(json, 'neutrals.filenameWithoutExtension') 
        if (jsonContainsName(json, 'neutrals.externalRegions')) then
 
           call json%info('neutrals.externalRegions', n_children = nrExternalRegions)

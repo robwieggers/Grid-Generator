@@ -1,5 +1,6 @@
 module NeutralGridConfigurationClass
   use, intrinsic :: iso_fortran_env
+  use TypesMod
   implicit none
   private
   public NeutralGridConfiguration
@@ -14,6 +15,7 @@ module NeutralGridConfigurationClass
 
   type, public :: NeutralGridConfiguration
      logical :: createGrid
+     character(charLen) :: filenameWithoutExtension
      type(ExternalArea), dimension(:), allocatable :: externalAreas
   end type NeutralGridConfiguration
 
