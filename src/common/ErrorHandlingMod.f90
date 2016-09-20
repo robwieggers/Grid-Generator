@@ -1,7 +1,7 @@
 module ErrorHandlingMod
   implicit none
   private
-  public exception
+  public exception, warning
 
 contains
 

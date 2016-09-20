@@ -18,6 +18,7 @@ module QuadrangularGridClass
   end interface QuadrangularGrid
 
 contains
+  
   function newQuadrangularGrid()
     implicit none
 
@@ -48,7 +49,6 @@ contains
     forall (i = 1:size(cells))
        this%grid(cells(i)%x, cells(i)%y) = cells(i)
     end forall
-    
   end subroutine importGrid
   
 end module QuadrangularGridClass
