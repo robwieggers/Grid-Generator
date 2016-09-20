@@ -122,12 +122,12 @@ contains
     else
        ! no hole
        write (iounit, *) 0
-       close(iounit)
-       
-       ! run triangle for the internal grid
-       call system('${TOPDIR}/bin/triangle -zepn ' // this%filename)
-     
     end if
+    close(iounit)
+    
+    ! run triangle for the internal grid
+    call system('${TOPDIR}/bin/triangle -zepn ' // this%filename)
+     
   end subroutine exportInternalTriangularGrid
   
 end module InternalTriangularGridExporterClass
