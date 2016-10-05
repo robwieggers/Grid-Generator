@@ -1,11 +1,11 @@
 module ExternalTriangularGridExporterClass
   use QuadrangularGridClass
-  use TriangularGridExporterClass
+  use ExporterClass
   use NeutralGridConfigurationClass
   implicit none
   private
 
-  type, extends(TriangularGridExporter), public :: ExternalTriangularGridExporter
+  type, extends(Exporter), public :: ExternalTriangularGridExporter
      type(ExternalArea) :: externalArea
      type(QuadrangularGrid) :: quadrangularGrid
    contains
@@ -21,11 +21,10 @@ module ExternalTriangularGridExporterClass
 
 contains
   function newExternalTriangularGridExporter()
-  use TriangularGridExporterClass
     implicit none
     type(ExternalTriangularGridExporter) :: newExternalTriangularGridExporter
 
-    newExternalTriangularGridExporter%filename = ''
+    newExternalTriangularGridExporter%extension = '.poly'
 
   end function newExternalTriangularGridExporter
 

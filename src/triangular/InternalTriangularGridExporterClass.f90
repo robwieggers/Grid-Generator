@@ -2,11 +2,11 @@ module InternalTriangularGridExporterClass
   use, intrinsic :: iso_fortran_env
   use QuadrangularGridClass
   use QuadrangularCellClass
-  use TriangularGridExporterClass
+  use ExporterClass
   implicit none
   private
 
-  type, extends(TriangularGridExporter), public :: InternalTriangularGridExporter
+  type, extends(Exporter), public :: InternalTriangularGridExporter
      type(QuadrangularGrid) :: quadrangularGrid
      logical :: holeAtCentroid
    contains
@@ -14,7 +14,7 @@ module InternalTriangularGridExporterClass
      procedure :: useHoleAtCentroid => setHoleAtCentroid
      procedure :: export => exportInternalTriangularGrid
   end type InternalTriangularGridExporter
-  
+    
   interface InternalTriangularGridExporter
      module procedure newInternalTriangularGridExporter
   end interface InternalTriangularGridExporter
@@ -23,10 +23,8 @@ contains
   function newInternalTriangularGridExporter()
     implicit none
     type(InternalTriangularGridExporter) :: newInternalTriangularGridExporter
-    type(TriangularGridExporter) :: triangularGridExporte
 
-    newInternalTriangularGridExporter%filename = ''
-
+    newInternalTriangularGridExporter%extension = '.poly'
     newInternalTriangularGridExporter%holeAtCentroid = .false.
 
   end function newInternalTriangularGridExporter

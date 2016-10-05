@@ -15,9 +15,9 @@ endif
 #INCLUDE += -I${SRCDIR}/common -I${TOPDIR}/include.local -I${TOPDIR}/include
 
 ifeq ($(shell [ -d ${SRCLOCAL} ] && echo yes || echo no ),yes)
-VPATH =${SRCLOCAL}:${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular
+VPATH =${SRCLOCAL}:${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular:${SRCDIR}/IO
 else
-VPATH =${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular
+VPATH =${SRCDIR}/main:${SRCDIR}/configuration:${SRCDIR}/common:${SRCDIR}/quadrangular:${SRCDIR}/triangular:${SRCDIR}/IO
 endif
 
 ifeq ($(shell [ -e ${BASEDIR}/LISTOBJ ] && echo yes || echo no ),yes)

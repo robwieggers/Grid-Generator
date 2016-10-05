@@ -3,11 +3,11 @@ program gridGenerator
   use ConfigurationClass
   use InternalTriangularGridExporterClass
   use ExternalTriangularGridExporterClass
-  use TriangularGridExporterClass
   use TriangularGridMergerClass
   use QuadrangularGridClass
   use QuadrangularGridImporterClass
-
+  use GeoJsonWallExporterClass
+  
   implicit none
 
   integer :: i
@@ -18,6 +18,7 @@ program gridGenerator
   type(InternalTriangularGridExporter) :: internalGridExporter
   type(ExternalTriangularGridExporter), allocatable, dimension(:) :: externalGridExporters
   type(TriangularGridMerger) :: gridMerger
+  type(GeoJsonWallExporter) :: wallExporter
   
   conf = Configuration()
   call conf%useFile('input.json')
@@ -30,6 +31,14 @@ program gridGenerator
   call plasmaGrid%useImporter(plasmaGridImporter)
   call plasmaGrid%import()
   if (conf%neutralGridConf%createGrid) then
+
+     wallExporter = GeoJsonWallExporter()
+     call wallExporter%useFile('walls.json')
+     call wallExporter%useIOUnit(20)
+     call wallExporter%useQuadrangularGrid(plasmaGrid)
+     call wallExporter%useExternalAreas(conf%neutralGridConf%externalAreas)
+     call wallExporter%export()
+     
      internalGridExporter = InternalTriangularGridExporter()
      call internalGridExporter%useFile('internal.poly')
      call internalGridExporter%useIOUnit(10)
