@@ -102,16 +102,16 @@ contains
        ! loop over nodes in between tail(2) and head(2)
        do i = tail(2), head(2), step
           write (iounit, *) cntr, &
-               this%quadrangularGrid%grid(head(1), i)%cornersY(1), &
-               this%quadrangularGrid%grid(head(1), i)%cornersX(1)
+               this%quadrangularGrid%grid(head(1), i)%cornersX(1), &
+               this%quadrangularGrid%grid(head(1), i)%cornersY(1)
           cntr = cntr + 1
        end do
     else
        ! loop over nodes in between tail(2) and head(1)
        do i = tail(1), head(1), step
           write (iounit, *) cntr, &
-               this%quadrangularGrid%grid(i, head(2))%cornersY(1), &
-               this%quadrangularGrid%grid(i, head(2))%cornersX(1)
+               this%quadrangularGrid%grid(i, head(2))%cornersX(1), &
+               this%quadrangularGrid%grid(i, head(2))%cornersY(1)
           cntr = cntr + 1
        end do
     end if

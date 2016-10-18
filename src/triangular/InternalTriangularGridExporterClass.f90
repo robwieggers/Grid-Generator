@@ -68,8 +68,8 @@ contains
     do iy = 0, ny
        do ix = 0, nx
           write (iounit, *) cntr, &
-               this%quadrangularGrid%grid(ix, iy)%cornersY(1), &
-               this%quadrangularGrid%grid(ix, iy)%cornersX(1)
+               this%quadrangularGrid%grid(ix, iy)%cornersX(1), &
+               this%quadrangularGrid%grid(ix, iy)%cornersY(1)
           cntr = cntr + 1
        end do
     end do
@@ -112,11 +112,11 @@ contains
        write (iounit, *) 1
        write (iounit, *) 1, &
             0.5 * ( &
-            minval(this%quadrangularGrid%grid(:, :)%cornersY(1)) + &
-            maxval(this%quadrangularGrid%grid(:, :)%cornersY(1))), &
-            0.5 * ( &
             minval(this%quadrangularGrid%grid(:, :)%cornersX(1)) + &
-            maxval(this%quadrangularGrid%grid(:, :)%cornersX(1)))
+            maxval(this%quadrangularGrid%grid(:, :)%cornersX(1))), &
+            0.5 * ( &
+            minval(this%quadrangularGrid%grid(:, :)%cornersY(1)) + &
+            maxval(this%quadrangularGrid%grid(:, :)%cornersY(1)))
     else
        ! no hole
        write (iounit, *) 0
