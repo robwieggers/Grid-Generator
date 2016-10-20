@@ -8,7 +8,8 @@ module QuadrangularGridImporterClass
      character(charLen) :: filename
    contains
      procedure :: useFile => setQuadrangularGridImporterFileName
-     procedure :: import => importFromJson
+     procedure :: importCells => importCellsFromJson
+     procedure :: importBoundary => importBoundaryFromJson
   end type QuadrangularGridImporter
 
   interface QuadrangularGridImporter
@@ -50,21 +51,23 @@ contains
   end subroutine setQuadrangularGridImporterFilename
 
 
-  function importFromJson(this) result(cells)
+  function importCellsFromJson(this) result(cells)
     use json_module !IGNORE
     use json_file_module !IGNORE
+    use ErrorHandlingMod
     use QuadrangularCellClass
     implicit none
     type(json_file) :: json
     type(json_core) :: core
-    type(json_value),pointer :: p !! a pointer for low-level manipulations
+    type(json_value), pointer :: p !! a pointer for low-level manipulations
     logical :: found
     class(QuadrangularGridImporter) :: this
     type(QuadrangularCell), allocatable :: cells(:)
     integer(json_IK) :: var_type,n_children
-    integer :: i, x, y
+    integer :: i, j, x, y, n_computational, cntr
     real(real64), dimension(:), allocatable :: coord
-    character(charLen) :: index
+    character(charLen) :: index, nodeIndex
+    character(kind=json_ck,len=:), allocatable :: type
     
     call json%initialize()
     call json%load_file(filename = this%filename)
@@ -76,30 +79,109 @@ contains
        print *, "'features' not found, not a valid quadrangular grid"
     end if
 
-    allocate(cells(n_children))
+    n_computational = 0
+    do i = 1, n_children
+       write(index, *) i
+       index = adjustl(index)
+       call json%get('features('//trim(index)//').properties.type', type)
+       if (trim(adjustl(type)) == 'computational') then 
+          n_computational = n_computational + 1
+       end if
+    end do
     
+    allocate(cells(n_computational))
+
+    cntr = 1
     ! loop over all the cells, and extract the data
     do i = 1, n_children
        write(index, *) i
        index = adjustl(index)
-       call json%get('features('//trim(index)//').properties.x', x)
-       call json%get('features('//trim(index)//').properties.y', y)
-       cells(i)%x = x
-       cells(i)%y = y      
-       call json%get('features('//trim(index)//').geometry.coordinates(1)', coord)
-       cells(i)%cornersX(1) = coord(1)
-       cells(i)%cornersY(1) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(2)', coord)
-       cells(i)%cornersX(2) = coord(1)
-       cells(i)%cornersY(2) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(3)', coord)
-       cells(i)%cornersX(3) = coord(1)
-       cells(i)%cornersY(3) = coord(2)
-       call json%get('features('//trim(index)//').geometry.coordinates(4)', coord)
-       cells(i)%cornersX(4) = coord(1)
-       cells(i)%cornersY(4) = coord(2)
+       call json%get('features('//trim(index)//').properties.type', type)
+       if (type == 'computational') then
+          call json%get('features('//trim(index)//').properties.x', x)
+          call json%get('features('//trim(index)//').properties.y', y)
+          cells(cntr)%x = x
+          cells(cntr)%y = y
+
+          do j = 1, 4
+             write(nodeIndex, *) j
+             nodeIndex = adjustl(nodeIndex)
+             
+             call json%get('features('//trim(index)//').geometry.coordinates(1)(' // &
+                  trim(nodeIndex) //')', coord)
+             cells(cntr)%cornersX(j) = coord(1)
+             cells(cntr)%cornersY(j) = coord(2)
+          end do
+          cntr = cntr + 1
+       end if
+    end do
+
+  end function importCellsFromJson
+
+
+  function importBoundaryFromJson(this) result(boundary)
+    use json_module !IGNORE
+    use json_file_module !IGNORE
+    use ErrorHandlingMod
+    use QuadrangularBoundaryClass
+    implicit none
+    type(json_file) :: json
+    type(json_core) :: core
+    type(json_value), pointer :: p !! a pointer for low-level manipulations
+    logical :: found
+    class(QuadrangularGridImporter) :: this
+    type(QuadrangularBoundary), allocatable :: boundary(:)
+    integer(json_IK) :: var_type, n_children
+    integer :: i, j, x, y, n_boundary, cntr, n_nodes
+    real(real64), dimension(:), allocatable :: coord
+    character(charLen) :: index, nodeIndex
+    character(kind=json_ck,len=:), allocatable :: type, description
+    
+    call json%initialize()
+    call json%load_file(filename = this%filename)
+    call json%get(p)
+    call core%initialize()
+    ! obtain number of cells, so we can allocate the array
+    call core%info(p, json_cdk_'features', found, var_type, n_children)
+    if (.not.found) then
+       print *, "'features' not found, not a valid quadrangular grid"
+    end if
+
+    n_boundary = 0
+    do i = 1, n_children
+       write(index, *) i
+       index = adjustl(index)
+       call json%get('features('//trim(index)//').properties.type', type)
+       if (trim(adjustl(type)) == 'boundary') then 
+          n_boundary = n_boundary + 1
+       end if
     end do
     
-  end function importFromJson
+    allocate(boundary(n_boundary))
+
+    cntr = 1
+    ! loop over all the cells, and extract the data
+    do i = 1, n_children
+       write(index, *) i
+       index = adjustl(index)
+       call json%get('features('//trim(index)//').properties.type', type)
+       if (type == 'boundary') then
+          call json%get('features('//trim(index)//').properties.description', description)
+          boundary(cntr)%description = description
+
+          call core%info(p, json_cdk_'features('//trim(index)//').geometry.coordinates', &
+               found, var_type, n_nodes)
+          allocate(boundary(cntr)%polyline(n_nodes, 2))
+          do j = 1, n_nodes
+             write(nodeIndex, *) j
+             nodeIndex = adjustl(nodeIndex)
+             call json%get('features('//trim(index)//').geometry.coordinates(' // &
+                  trim(nodeIndex) // ')', coord)
+             boundary(cntr)%polyline(j, :) = coord
+          end do
+          cntr = cntr + 1
+       end if
+    end do
+  end function importBoundaryFromJson
 
 end module QuadrangularGridImporterClass

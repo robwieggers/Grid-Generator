@@ -52,11 +52,14 @@ contains
   subroutine exportExternalTriangularGrid(this)
     use TypesMod
     use ErrorHandlingMod
+    use QuadrangularBoundaryClass
     implicit none
     class(ExternalTriangularGridExporter), intent(in) :: this
     integer :: iounit, additionalNodes, step, cntr, i
-    integer, dimension(2) :: head, tail
+    integer :: head, tail
     character (charLen) :: angleLimitChar, areaLimitChar, iChar
+    type(QuadrangularBoundary) :: boundary
+    logical :: found = .false.
     
     head = this%externalArea%quadrangularNodeHead
     tail = this%externalArea%quadrangularNodeTail
@@ -65,24 +68,36 @@ contains
             __FILENAME__, __LINE__)
     end if
     iounit = this%ioUnit
-    do i = 1, 2
-       write (iChar, *) i
-       if (min(head(i), tail(i)) < lbound(this%quadrangularGrid%grid, i) .or. &
-         max(head(i), tail(i)) > ubound(this%quadrangularGrid%grid, i)) then
-          call exception ('coordinate ' // trim(adjustl(iChar)) // &
-               ' of head and tail nodes should be indices within the quadrangular grid', &
-               __FILENAME__, __LINE__)
+
+    do i = 1, size(this%quadrangularGrid%boundary)
+       if (this%quadrangularGrid%boundary(i)%description == &
+            this%externalArea%quadrangularBoundary) then
+          boundary = this%quadrangularGrid%boundary(i)
+          found = .true.
+          exit
        end if
     end do
+    if (.not.found) then
+       call exception ('boundary ' // trim(this%externalArea%quadrangularBoundary) // &
+            ' used for an external region is not found in the quadrangular grid', &
+            __FILENAME__, __LINE__)
+    end if
+    if (max(head, tail) > size(boundary%polyline, 1) .or. &
+         min(head, tail) < 1) then
+       call exception &
+            ('index of head and tail nodes should be indices within the quadrangular boundary', &
+               __FILENAME__, __LINE__)
+    end if
 
     open(iounit, file=this%filename, status='UNKNOWN')
 
-    additionalNodes = tail(1) + tail(2) - head(1) - head(2)
+    additionalNodes = tail - head
+    write (*, *) 'additionalNodes: ', additionalNodes, head, tail
     if (additionalNodes .lt. 0) then
        additionalNodes = -additionalNodes
-       step = 1 ! index of last < first, so loop from last node to first node is in positive direction
+       step = -1 
     else
-       step = -1 ! index of last > first, so loop from last node to first node is in negative direction
+       step = 1 
     end if
     additionalNodes = additionalNodes + 1 ! adding 1 to include first and last node.
 
@@ -98,23 +113,11 @@ contains
     end do
 
     ! write nodes connecting to internal region
-    if (head(1) == tail(1)) then
-       ! loop over nodes in between tail(2) and head(2)
-       do i = tail(2), head(2), step
-          write (iounit, *) cntr, &
-               this%quadrangularGrid%grid(head(1), i)%cornersX(1), &
-               this%quadrangularGrid%grid(head(1), i)%cornersY(1)
-          cntr = cntr + 1
-       end do
-    else
-       ! loop over nodes in between tail(2) and head(1)
-       do i = tail(1), head(1), step
-          write (iounit, *) cntr, &
-               this%quadrangularGrid%grid(i, head(2))%cornersX(1), &
-               this%quadrangularGrid%grid(i, head(2))%cornersY(1)
-          cntr = cntr + 1
-       end do
-    end if
+    write (*, *) head, tail, step
+    do i = head, tail, step
+       write (iounit, *) cntr, boundary%polyline(i, 1), boundary%polyline(i, 2)
+       cntr = cntr + 1
+    end do
 
     ! add blank line
     write (iounit, *) ''

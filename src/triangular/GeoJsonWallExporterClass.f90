@@ -120,11 +120,11 @@ contains
     call json%add(geometry, coordinates)
     call json%add(coordinates, '', [ &
          quadGrid%grid( &
-         extArea%quadrangularNodeHead(1), &
-         extArea%quadrangularNodeHead(2))%cornersX(1), &
+         extArea%quadrangularNodeHead, &
+         extArea%quadrangularNodeHead)%cornersX(1), &
          quadGrid%grid( &
-         extArea%quadrangularNodeHead(1), &
-         extArea%quadrangularNodeHead(2))%cornersY(1) &
+         extArea%quadrangularNodeHead, &
+         extArea%quadrangularNodeHead)%cornersY(1) &
          ])
     do i = 1, size(extArea%nodes, 1)
        call json%add(coordinates, '', &
@@ -132,11 +132,11 @@ contains
     end do
     call json%add(coordinates, '', [ &
          quadGrid%grid( &
-         extArea%quadrangularNodeTail(1), &
-         extArea%quadrangularNodeTail(2))%cornersX(1), &
+         extArea%quadrangularNodeTail, &
+         extArea%quadrangularNodeTail)%cornersX(1), &
          quadGrid%grid( &
-         extArea%quadrangularNodeTail(1), &
-         extArea%quadrangularNodeTail(2))%cornersY(1) &
+         extArea%quadrangularNodeTail, &
+         extArea%quadrangularNodeTail)%cornersY(1) &
          ])
     nullify(coordinates)
     nullify(geometry)

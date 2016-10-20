@@ -54,22 +54,34 @@ contains
     use ErrorHandlingMod
     implicit none
     class(InternalTriangularGridExporter), intent(in) :: this
-    integer :: ix, iy, cntr, nx, ny, iounit
+    integer :: ix, iy, cntr, nx, ny, iounit, j
 
     iounit = this%ioUnit
-    nx = size(this%quadrangularGrid%grid, 1) - 2 ! correction for the guard cells
-    ny = size(this%quadrangularGrid%grid, 2) - 2 ! correction for the guard cells
-
+    nx = size(this%quadrangularGrid%grid, 1) ! correction for the guard cells
+    ny = size(this%quadrangularGrid%grid, 2) ! correction for the guard cells
+    write (*, *) 'nx, ny = ', nx, ny
     open(unit=iounit, file=this%filename, status='UNKNOWN')
     write (iounit, *) '# Set the nodes of the internal grid'
-    write (iounit, *) (nx + 1) * (ny + 1), 2, 0, 0
+    write (iounit, *) 4 * nx * ny, 2, 0, 0
 
     cntr = 0
-    do iy = 0, ny
-       do ix = 0, nx
+    do iy = 0, ny - 1
+       do ix = 0, nx - 1
           write (iounit, *) cntr, &
                this%quadrangularGrid%grid(ix, iy)%cornersX(1), &
                this%quadrangularGrid%grid(ix, iy)%cornersY(1)
+          cntr = cntr + 1
+          write (iounit, *) cntr, &
+               this%quadrangularGrid%grid(ix, iy)%cornersX(2), &
+               this%quadrangularGrid%grid(ix, iy)%cornersY(2)
+          cntr = cntr + 1
+          write (iounit, *) cntr, &
+               this%quadrangularGrid%grid(ix, iy)%cornersX(3), &
+               this%quadrangularGrid%grid(ix, iy)%cornersY(3)
+          cntr = cntr + 1
+          write (iounit, *) cntr, &
+               this%quadrangularGrid%grid(ix, iy)%cornersX(4), &
+               this%quadrangularGrid%grid(ix, iy)%cornersY(4)
           cntr = cntr + 1
        end do
     end do
@@ -81,24 +93,21 @@ contains
     ! write comments line first
     write (iounit, *) '# set the sides'
     write (iounit, *) '# format: counter, 2 nodes, wall index'
-    write (iounit, *) (nx)*(ny+1) + ny*(nx+1), 1
+    write (iounit, *) 4 * nx * ny, 1
     ! horizontal sides
     cntr = 0
-    do iy = 0, ny
+    do iy = 0, ny - 1
        do ix = 0, nx - 1
+          do j = 0, 2
+             write (iounit, *) cntr, &
+                  4 * (ix + iy * nx) + j, &
+                  4 * (ix + iy * nx) + j + 1, &
+                  cntr + 1000
+             cntr = cntr + 1
+          end do
           write (iounit, *) cntr, &
-               ix + iy * (nx + 1), &
-               ix + iy * (nx + 1) + 1, &
-               cntr + 1000
-          cntr = cntr + 1
-       end do
-    end do
-    ! vertical sides
-    do ix = 0, nx
-       do iy = 0, ny - 1
-          write (iounit, *) cntr, &
-               ix + iy * (nx + 1), &
-               ix + (iy + 1) * (nx + 1), &
+               4 * (ix + iy * nx) + 3, &
+               4 * (ix + iy * nx) + 0, &
                cntr + 1000
           cntr = cntr + 1
        end do
@@ -124,7 +133,7 @@ contains
     close(iounit)
     
     ! run triangle for the internal grid
-    call system('${TOPDIR}/bin/triangle -zepn ' // this%filename)
+    call system('${TOPDIR}/bin/triangle -zepnQ ' // this%filename)
      
   end subroutine exportInternalTriangularGrid
   

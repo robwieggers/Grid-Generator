@@ -87,22 +87,16 @@ contains
                   jsonExtractString(json, 'neutrals.externalRegions('//trim(iChar)//').angleLimit')
 
              this%neutralGridConf%externalAreas(i)%quadrangularNodeHead = &
-                  jsonExtractIntegerArray(json, &
+                  jsonExtractInteger(json, &
                   'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularNodeHead')
              this%neutralGridConf%externalAreas(i)%quadrangularNodeTail = &
-                  jsonExtractIntegerArray(json, &
+                  jsonExtractInteger(json, &
                   'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularNodeTail')
-             if (this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(1) /= &
-                  this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(1) .and. &
-                 this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(2) /= &
-                 this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(2)) then
-                call exception('first and last node should be on same boundary of the quadrangular', &
-                     __FILENAME__, __LINE__)
-             end if
-             if (this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(1) == &
-                  this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(1) .and. &
-                 this%neutralGridConf%externalAreas(i)%quadrangularNodeHead(2) == &
-                 this%neutralGridConf%externalAreas(i)%quadrangularNodeTail(2)) then
+             this%neutralGridConf%externalAreas(i)%quadrangularBoundary = &
+                  jsonExtractString(json, &
+                  'neutrals.externalRegions('//trim(iChar)//').connectToQuadrangularBoundary')
+             if (this%neutralGridConf%externalAreas(i)%quadrangularNodeHead == &
+                  this%neutralGridConf%externalAreas(i)%quadrangularNodeTail) then
                 call exception('first and last node should be different nodes on a single boundary of the quadrangular', &
                      __FILENAME__, __LINE__)
              end if

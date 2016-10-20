@@ -9,8 +9,9 @@ module NeutralGridConfigurationClass
      character(charLen) :: areaLimit
      character(charLen) :: angleLimit
      real(real64), dimension(:, :), allocatable :: nodes
-     integer, dimension(2) :: quadrangularNodeHead
-     integer, dimension(2) :: quadrangularNodeTail
+     integer :: quadrangularNodeHead
+     integer :: quadrangularNodeTail
+     character(charLen) :: quadrangularBoundary     
   end type ExternalArea
 
   type, public :: NeutralGridConfiguration
