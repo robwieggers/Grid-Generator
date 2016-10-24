@@ -144,7 +144,7 @@ contains
 
     close(iounit)
 
-    call system('${TOPDIR}/bin/triangle -zepn -a' // this%externalArea%areaLimit // &
+    call system('${TOPDIR}/bin/triangle -zepnY -a' // this%externalArea%areaLimit // &
          ' -q' // this%externalArea%angleLimit // ' ' // this%filename)
  
   end subroutine exportExternalTriangularGrid
